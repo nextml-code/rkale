@@ -1,7 +1,5 @@
 # Rkale
 
-![Kale](kale.jpg)
-
 ## Install
 #### Install Rkale:  
 ```bash
