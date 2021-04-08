@@ -5,7 +5,7 @@
 ## Install
 #### Install Rkale:  
 ```bash
-climate install git@github.com:Aiwizo/rkale.git
+pip install rkale
 ```
 For easy usage, add rkale as an alias in your -bashrc
 ```bash
