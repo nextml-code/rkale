@@ -1,9 +1,9 @@
 import os
 import re
-import shutil
 import subprocess
 import tempfile
-from contextlib import contextmanager
+from collections import namedtuple
+from contextlib import contextmanager, suppress
 
 from tqdm import tqdm
 
@@ -15,60 +15,63 @@ def read(file_path):
 
 
 @contextmanager
-def check(source, destination):
-    dirpath = tempfile.mkdtemp()
-    src_out, dst_out, error_out = (
-        f"{dirpath}/src_missing",
-        f"{dirpath}/dst_missing",
-        f"{dirpath}/error",
-    )
-    result = subprocess.run(
-        f"rclone check {source} {destination}"
-        + f" --missing-on-src {src_out}"
-        + f" --missing-on-dst {dst_out} --error {error_out}",
-        shell=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-    )
-    errors = read(error_out)
-    if errors:
-        raise Exception(
-            "\n".join(
+def check_files(paths):
+    Check = namedtuple("Check", ["src_out", "dst_out", "stderr"])
+    checks = []
+    for source, destination in paths:
+        print(f"Comparing paths {source} and {destination}...")
+        src_out, dst_out, error_out = (tempfile.mkstemp()[1] for _ in range(3))
+        result = subprocess.run(
+            f"rclone check {source} {destination}"
+            + f" --missing-on-src {src_out}"
+            + f" --missing-on-dst {dst_out} --error {error_out}",
+            shell=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        errors = read(error_out)
+        files_stderr = ""
+        if errors:
+            files_stderr = "/n".join(
                 [
-                    f"Got {len(errors)} when comparing destinations",
+                    f"Got {len(errors)} when comparing {source} and {destination}",
                     "Caused by files:",
                     *errors,
                 ]
             )
+        stderr = (
+            result.stderr.decode("utf-8")
+            if (not read(src_out) and not read(dst_out) and result.returncode == 1)
+            else files_stderr
         )
-
-    if not read(src_out) and not read(dst_out) and result.returncode == 1:
-        raise Exception(result.stderr.decode("utf-8"))
+        os.remove(error_out)
+        checks.append(Check(src_out, dst_out, stderr))
 
     try:
-        yield src_out, dst_out
+        yield checks
     finally:
-        shutil.rmtree(dirpath)
+        with suppress(FileNotFoundError):
+            for check in checks:
+                os.remove(check.src_out)
+                os.remove(check.dst_out)
 
 
-def check_paths(*args):
-    for path in args:
-        split_path = path.split(":")
+def check_paths(paths):
+    for pair in paths:
+        if len(pair) != 2:
+            raise Exception("Source and destination not specified correctly")
+        for item in pair:
+            split_path = item.split(":")
 
-        # path is local
-        if len(split_path) == 1:
-            if split_path[0].rstrip(".").rstrip("/") == os.path.expanduser("~"):
-                raise Exception(f"Local {path} is a root path")
-        else:
-            if split_path[1].rstrip(".").rstrip("/") == "":
-                raise Exception(f"Remote {path} is a root path")
-
-
-def get_destinations(args):
-    destinations = [arg for arg in args if not arg.startswith("-")]
-    if len(destinations) != 2:
-        raise Exception("Source and destination not specified")
-    return destinations[0], destinations[1]
+            # path is local
+            if len(split_path) == 1:
+                if os.path.expanduser(
+                    split_path[0].rstrip(".").rstrip("/")
+                ) == os.path.expanduser("~"):
+                    raise Exception(f"Local {item} is a root path")
+            else:
+                if split_path[1].rstrip(".").rstrip("/") == "":
+                    raise Exception(f"Remote {item} is a root path")
 
 
 def sync(source, destination, files_from=None, progress=False):
@@ -79,8 +82,8 @@ def sync(source, destination, files_from=None, progress=False):
         args.append("--progress")
 
     comand = " ".join(["rclone", "sync", source, destination, *args])
-    process = subprocess.Popen(comand, shell=True, stdout=subprocess.PIPE)
 
+    process = subprocess.Popen(comand, shell=True, stdout=subprocess.PIPE)
     if progress:
         pbar = tqdm(total=len(read(files_from)))
 
@@ -96,3 +99,4 @@ def sync(source, destination, files_from=None, progress=False):
             else:
                 pbar.close()
                 break
+    process.wait()

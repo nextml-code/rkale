@@ -1,62 +1,64 @@
 import argparse
 import os
 
-from rkale.checked_operations import handle_copy, handle_sync
+from rkale.operations import handle_copy, handle_sync
 from rkale.project_operations import handle_pcopy, handle_psync
 
-CHECKED_OPERATIONS = ["copy", "sync"]
-PROJECT_OPERATIONS = {"pcopy": handle_pcopy, "psync": handle_psync}
-
-
-def rkale(working_dir, operation, destinations=[], force=False, upstream=False):
-    if operation in CHECKED_OPERATIONS:
-        if len(destinations) != 2:
-            raise Exception("Source and destination not specified correctly")
-        source, destination = destinations
-        if operation == "sync":
-            handle_sync(source, destination, force=force)
-        else:
-            handle_copy(source, destination, force=force)
-    elif operation in PROJECT_OPERATIONS.keys():
-        PROJECT_OPERATIONS[operation](working_dir, force=force, upstream=upstream)
-    else:
-        raise Exception("Unrecognized operation")
+OPERATIONS = {
+    "copy": handle_copy,
+    "sync": handle_sync,
+    "pcopy": handle_pcopy,
+    "psync": handle_psync,
+}
 
 
 def main():
+    working_dir = os.getcwd()
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        choices=["copy", "sync", "pcopy", "psync"], help="operation", dest="operation"
-    )
-    parser.add_argument(
-        nargs="*",
-        default=[],
-        dest="destinations",
-        help="Soruce and destination, specified for sync/copy",
-    )
-    parser.add_argument(
+
+    base_parser = argparse.ArgumentParser(add_help=False)
+    base_parser.add_argument(
         "-f",
         "--force",
         action="store_true",
         dest="force",
         help="Run operation without checks",
     )
-    parser.add_argument(
+
+    subparsers = parser.add_subparsers(title="operation", dest="operation")
+    global_parser = subparsers.add_parser(
+        "copy", aliases=["sync"], parents=[base_parser]
+    )
+    global_parser.add_argument("source")
+    global_parser.add_argument("destination")
+    global_parser.set_defaults(
+        func=lambda args: OPERATIONS[args.operation](
+            [(args.source, args.destination)], force=args.force
+        )
+    )
+
+    project_parser = subparsers.add_parser(
+        "pcopy", aliases=["psync"], parents=[base_parser]
+    )
+    project_parser.add_argument(
         "-u",
         "--upstream",
         action="store_true",
         dest="upstream",
-        help="reverse order for psync/pcopy",
+        help="Apply changes upstream",
     )
+    project_parser.set_defaults(
+        func=lambda args: OPERATIONS[args.operation](
+            working_dir, force=args.force, upstream=args.upstream
+        )
+    )
+
     args = parser.parse_args()
     try:
-        rkale(
-            os.getcwd(),
-            args.operation,
-            destinations=args.destinations,
-            force=args.force,
-            upstream=args.upstream,
-        )
+        func = args.func
+        func(args)
+    except AttributeError:
+        parser.error("too few arguments")
     except Exception as e:
         print(str(e).rstrip("\n"))
 

@@ -1,5 +1,5 @@
-from rkale.checked_operations import handle_copy, handle_sync
-from rkale.config import global_configuration, project_configuration
+from rkale.config import get_datasets, global_configuration
+from rkale.operations import handle_copy, handle_sync
 
 
 def handle_pcopy(working_dir, force=False, upstream=False):
@@ -12,18 +12,16 @@ def handle_psync(working_dir, force=False, upstream=False):
 
 def _apply_to_datasets(func, working_dir, force=False, upstream=False):
     global_config = global_configuration()
-    project_config = project_configuration(working_dir)
     data_root = global_config["data"]["root"]
+    paths = []
 
-    for dataset in project_config["datasets"]:
+    for dataset in get_datasets(working_dir):
         remote = dataset["remote"]
         if "aliases" in global_config and remote in global_config["aliases"]:
             remote = global_config["aliases"][remote]
 
-        source, destination = get_destinations(
-            data_root, remote, dataset["name"], upstream
-        )
-        func(source, destination, force=force)
+        paths.append(get_destinations(data_root, remote, dataset["name"], upstream))
+    func(paths, force=force)
 
 
 def get_destinations(data_root, remote, dataset, upstream):

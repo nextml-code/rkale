@@ -1,11 +1,20 @@
 [tool.poetry]
 name = "rkale"
-version = "0.1.0"
-description = ""
+version = "0.2.0"
+description = "Rclone wrapper to manage multiple datasets in a project"
 authors = ["Joar Gruneau <joar@aiwizo.com>"]
+
+license = "MIT"
+
+readme = 'README.md'
+
+repository = "https://github.com/Aiwizo/rkale"
+homepage = "https://github.com/Aiwizo/rkale"
 
 [tool.poetry.dependencies]
 python = "^3.7"
+toml = "^0.10.2"
+tqdm = "^4.60.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
@@ -13,3 +22,6 @@ pytest = "^5.2"
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+rkale = 'rkale.rkale:main'
