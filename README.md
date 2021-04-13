@@ -24,7 +24,7 @@ If alases are empty the remote name from the project config is used in the rclon
 ### Project
 Add the rkale tool definition in the pyproject.toml file:  
 
-`~/<project path>/pyproject.toml`:
+`<project path>/pyproject.toml`:
 ```toml
   [[tool.rkale.dataset]]
   name = "dataset_1"
@@ -40,11 +40,11 @@ The remote specified for the dataset must match a remote in the `rclone.conf` or
 ```
 $ rkale psync
 ```
-Syncs the datasets specified in the `~/<project path>/pyproject.toml` to be identical with their remotes.  
+Syncs the datasets specified in the `<project path>/pyproject.toml` to be identical with their remotes.  
 ```
 $ rkale psync --upstream
 ```
-Syncs the remote datasets specified in the `~/<project path>/pyproject.toml` to be identical with their locals.  
+Syncs the remote datasets specified in the `<project path>/pyproject.toml` to be identical with their locals.  
 
 ### Global example
 ```rkale sync <source> <destination>```

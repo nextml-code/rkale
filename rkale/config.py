@@ -3,6 +3,7 @@ from functools import lru_cache
 from pathlib import Path
 
 import toml
+from rkale.exceptions import ConfigError, DataRootError, DatasetError
 
 
 @lru_cache()
@@ -16,14 +17,14 @@ def project_configuration(working_dir):
     config = load_configuration(config_path)
     if "tool" in config and "rkale" in config["tool"]:
         return config["tool"]["rkale"]
-    raise Exception(f"No rkale section found in {config_path}")
+    raise ConfigError(f"No rkale section found in {config_path}")
 
 
 def get_datasets(working_dir):
     config = project_configuration(working_dir)
     if "dataset" in config:
         return config["dataset"]
-    raise Exception("No dataset defined in rkale config")
+    raise DatasetError("No dataset defined in rkale config")
 
 
 def get_repository_paths(working_dir):
@@ -35,18 +36,24 @@ def get_repository_paths(working_dir):
 
 
 def get_path(root, name):
-    resolved_path = (root / name).resolve()
-    resolved_path.relative_to(root.resolve())
-    if resolved_path != root:
-        return resolved_path
-    raise Exception(f"Path {resolved_path} is outiside data root {root}")
+    resolved_path = Path(root.expanduser() / name).resolve()
+    try:
+        resolved_path.relative_to(root.expanduser().resolve())
+        if resolved_path != root:
+            return resolved_path
+    except ValueError:
+        pass
+    raise DataRootError(f"Path {resolved_path} is outiside data root {root}")
 
 
 def find(name, path):
-    for root, dirs, files in os.walk(path):
+    if os.path.exists(name) and os.path.isfile(name):
+        return os.path.join(path, name)
+
+    for root, dirs, files in os.walk(path, topdown=False):
         if name in files:
             return os.path.join(root, name)
-        raise Exception(f"Could not find file {name} in path {path}")
+    raise FileNotFoundError(f"Could not find file {name} in path {path}")
 
 
 def load_configuration(path):

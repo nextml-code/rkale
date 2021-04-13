@@ -3,6 +3,7 @@ from pathlib import Path
 import pytest
 from rkale import __version__
 from rkale.config import get_path
+from rkale.exceptions import DataRootError
 from rkale.project_operations import get_destinations
 from rkale.utils import check_paths
 
@@ -13,7 +14,7 @@ def test_version():
 
 def test_get_path():
     assert get_path(Path("test"), "sub_test") == Path("test/sub_test").resolve()
-    with pytest.raises(Exception):
+    with pytest.raises(DataRootError):
         get_path(Path("test"), "../sub_test")
 
 
@@ -30,7 +31,7 @@ def test_get_destinations():
 
 def test_check_paths():
     check_paths([("~/test", "remote:/test")])
-    with pytest.raises(Exception):
+    with pytest.raises(DataRootError):
         check_paths([("~/test", "remote:")])
-    with pytest.raises(Exception):
+    with pytest.raises(DataRootError):
         check_paths([("~", "remote:/test")])

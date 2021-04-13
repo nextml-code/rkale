@@ -3,8 +3,9 @@ import re
 import subprocess
 import tempfile
 from collections import namedtuple
-from contextlib import contextmanager, suppress
+from contextlib import contextmanager
 
+from rkale.exceptions import DataRootError
 from tqdm import tqdm
 
 
@@ -50,16 +51,13 @@ def check_files(paths):
     try:
         yield checks
     finally:
-        with suppress(FileNotFoundError):
-            for check in checks:
-                os.remove(check.src_out)
-                os.remove(check.dst_out)
+        for check in checks:
+            os.remove(check.src_out)
+            os.remove(check.dst_out)
 
 
 def check_paths(paths):
     for pair in paths:
-        if len(pair) != 2:
-            raise Exception("Source and destination not specified correctly")
         for item in pair:
             split_path = item.split(":")
 
@@ -68,10 +66,10 @@ def check_paths(paths):
                 if os.path.expanduser(
                     split_path[0].rstrip(".").rstrip("/")
                 ) == os.path.expanduser("~"):
-                    raise Exception(f"Local {item} is a root path")
+                    raise DataRootError(f"Local {item} is a root path")
             else:
                 if split_path[1].rstrip(".").rstrip("/") == "":
-                    raise Exception(f"Remote {item} is a root path")
+                    raise DataRootError(f"Remote {item} is a root path")
 
 
 def sync(source, destination, files_from=None, progress=False):
