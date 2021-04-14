@@ -12,7 +12,9 @@ def global_configuration():
 
 
 @lru_cache()
-def project_configuration(working_dir):
+def project_configuration(working_dir=None):
+    if working_dir is None:
+        working_dir = os.getcwd()
     config_path = find("pyproject.toml", working_dir)
     config = load_configuration(config_path)
     if "tool" in config and "rkale" in config["tool"]:
@@ -20,18 +22,22 @@ def project_configuration(working_dir):
     raise ConfigError(f"No rkale section found in {config_path}")
 
 
-def get_datasets(working_dir):
-    config = project_configuration(working_dir)
+def get_datasets(working_dir=None):
+    if working_dir is None:
+        working_dir = os.getcwd()
+    config = project_configuration(working_dir=working_dir)
     if "dataset" in config:
         return config["dataset"]
     raise DatasetError("No dataset defined in rkale config")
 
 
-def get_repository_paths(working_dir):
+def get_repository_paths(working_dir=None):
+    if working_dir is None:
+        working_dir = os.getcwd()
     data_root = Path(global_configuration()["data"]["root"])
     return {
         dataset["name"]: get_path(data_root, dataset["name"])
-        for dataset in get_datasets(working_dir)
+        for dataset in get_datasets(working_dir=working_dir)
     }
 
 

@@ -1,5 +1,4 @@
 import argparse
-import os
 
 from rkale.operations import handle_copy, handle_sync
 from rkale.project_operations import handle_pcopy, handle_psync
@@ -13,7 +12,6 @@ OPERATIONS = {
 
 
 def main():
-    working_dir = os.getcwd()
     parser = argparse.ArgumentParser()
 
     base_parser = argparse.ArgumentParser(add_help=False)
@@ -49,7 +47,7 @@ def main():
     )
     project_parser.set_defaults(
         func=lambda args: OPERATIONS[args.operation](
-            working_dir, force=args.force, upstream=args.upstream
+            force=args.force, upstream=args.upstream
         )
     )
 

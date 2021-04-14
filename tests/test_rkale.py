@@ -9,7 +9,7 @@ from rkale.utils import check_paths
 
 
 def test_version():
-    assert __version__ == "0.2.0"
+    assert __version__ == "0.2.2"
 
 
 def test_get_path():
