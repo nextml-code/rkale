@@ -2,20 +2,20 @@ from pathlib import Path
 
 import pytest
 from rkale import __version__
-from rkale.config import get_path
+from rkale.config import path
 from rkale.exceptions import DataRootError
 from rkale.project_operations import get_destinations
 from rkale.utils import check_paths
 
 
 def test_version():
-    assert __version__ == "0.2.0"
+    assert __version__ == "0.2.3"
 
 
-def test_get_path():
-    assert get_path(Path("test"), "sub_test") == Path("test/sub_test").resolve()
+def test_path():
+    assert path(Path("test"), "sub_test") == Path("test/sub_test").resolve()
     with pytest.raises(DataRootError):
-        get_path(Path("test"), "../sub_test")
+        path(Path("test"), "../sub_test")
 
 
 def test_get_destinations():
