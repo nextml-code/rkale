@@ -1,7 +1,15 @@
-# Rkale
+# rkale
 
 ## Install
-#### Install Rkale:  
+
+Install lantern in your project using poetry:
+
+```bash
+poetry add rkale
+```
+
+Use pip if you want a global installation:
+
 ```bash
 pip install rkale
 ```
@@ -13,39 +21,56 @@ pip install rkale
 `~/.config/rkale/rkale.conf`:
 ```toml
 [data]
-root = "path to root data folder"
+root = "path to data folder where datasets are stored"
 
 [aliases]
-wasabi="value to match remote in rclone.conf"
+wasabi = "optional alias for remote in rclone.conf"
 ```
-root = root folder.  
+
 If alases are empty the remote name from the project config is used in the rclone lookup.
 
 ### Project
-Add the rkale tool definition in the pyproject.toml file:  
+Configure project datasets in the pyproject.toml file:
 
 `<project path>/pyproject.toml`:
 ```toml
-  [[tool.rkale.dataset]]
-  name = "dataset_1"
-  remote = "remote_1"
-  
-  [[tool.rkale.dataset]]
-  name = "dataset_2"
-  remote = "remote_2"
-  ```
+[[tool.rkale.dataset]]
+name = "dataset_1"
+remote = "remote_1"
+
+[[tool.rkale.dataset]]
+name = "dataset_2"
+remote = "remote_2"
+```
+
 The remote specified for the dataset must match a remote in the `rclone.conf` or an alias in the global rkale configuration.
 
-### Project example
-```
-$ rkale psync
-```
-Syncs the datasets specified in the `<project path>/pyproject.toml` to be identical with their remotes.  
-```
-$ rkale psync --upstream
-```
-Syncs the remote datasets specified in the `<project path>/pyproject.toml` to be identical with their locals.  
+## Usage
 
-### Global example
-```rkale sync <source> <destination>```
-Same as rclone but first checks the result of the operation requires user consent before executing.  
+### Python interface
+
+```python
+from rkale.config import repository_paths
+
+dataset_paths = repository_paths()
+```
+
+### Syncing datasets
+
+Syncs the local datasets to be identical to the remote
+
+```bash
+rkale psync
+```
+
+Syncs the remote datasets to be identical to the local
+
+```bash
+rkale psync --upstream
+```
+
+Same as rclone sync but checks differences first and asks for confirmation
+
+```bash
+rkale sync <source> <destination>
+```
