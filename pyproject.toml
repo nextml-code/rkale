@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "rkale"
-version = "0.2.3"
+version = "0.2.4"
 description = "Rclone wrapper to manage multiple datasets in a project"
 authors = ["Joar Gruneau <joar@aiwizo.com>"]
 
