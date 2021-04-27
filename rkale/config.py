@@ -31,7 +31,7 @@ def datasets(working_dir=None):
     raise DatasetError("No dataset defined in rkale config")
 
 
-def repository_paths(working_dir=None):
+def dataset_paths(working_dir=None):
     if working_dir is None:
         working_dir = os.getcwd()
     data_root = Path(global_configuration()["data"]["root"])
