@@ -50,9 +50,9 @@ The remote specified for the dataset must match a remote in the `rclone.conf` or
 ### Python interface
 
 ```python
-from rkale.config import repository_paths
+from rkale.config import dataset_paths
 
-dataset_paths = repository_paths()
+DATASET_PATH = dataset_paths()["dataset_1"]
 ```
 
 ### Syncing datasets
