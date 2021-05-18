@@ -79,9 +79,9 @@ def sync(source, destination, files_from=None, progress=False):
     if progress:
         args.append("--progress")
 
-    comand = " ".join(["rclone", "sync", source, destination, *args])
+    command = " ".join(["rclone", "sync", source, destination, *args])
 
-    process = subprocess.Popen(comand, shell=True, stdout=subprocess.PIPE)
+    process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
     if progress:
         pbar = tqdm(total=len(read(files_from)))
 

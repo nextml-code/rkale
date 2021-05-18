@@ -15,7 +15,7 @@ def global_configuration():
 def project_configuration(working_dir=None):
     if working_dir is None:
         working_dir = os.getcwd()
-    config_path = find("pyproject.toml", working_dir)
+    config_path = find("pyproject.toml", Path(working_dir))
     config = load_configuration(config_path)
     if "tool" in config and "rkale" in config["tool"]:
         return config["tool"]["rkale"]
@@ -49,17 +49,15 @@ def path(root, name):
             return resolved_path
     except ValueError:
         pass
-    raise DataRootError(f"Path {resolved_path} is outiside data root {root}")
+    raise DataRootError(f"Path {resolved_path} is outside data root {root}")
 
 
-def find(name, path):
-    if os.path.exists(name) and os.path.isfile(name):
-        return os.path.join(path, name)
-
-    for root, dirs, files in os.walk(path, topdown=False):
-        if name in files:
-            return os.path.join(root, name)
-    raise FileNotFoundError(f"Could not find file {name} in path {path}")
+def find(name, root):
+    while root != Path("/"):
+        if (root / name).exists():
+            return root / name
+        root = root.parent
+    raise FileNotFoundError(f"Could not find file {name} in path {root} or any of it's parent directories")
 
 
 def load_configuration(path):
