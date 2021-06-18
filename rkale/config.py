@@ -22,6 +22,13 @@ def project_configuration(working_dir=None):
     raise ConfigError(f"No rkale section found in {config_path}")
 
 
+def rclone_flags():
+    config = global_configuration()
+    if "rclone" in config and "flags" in config["rclone"]:
+        return config["rclone"]["flags"]
+    return []
+
+
 def datasets(working_dir=None):
     if working_dir is None:
         working_dir = os.getcwd()
