@@ -1,4 +1,5 @@
 from rkale.utils import check_files, check_paths, read, sync
+from rkale.config import rclone_flags
 
 
 def get_input(verbose_info):
@@ -40,23 +41,25 @@ def get_answers(operation, checks, paths, force=False):
 
 def handle_copy(paths, force=False):
     check_paths(paths)
+    flags = rclone_flags()
     with check_files(paths) as checks:
         answers = get_answers("copy", checks, paths, force=force)
         for answer, check, (source, destination) in zip(answers, checks, paths):
             if answer:
                 print(f"Copying files to {destination}...")
-                sync(source, destination, files_from=check.dst_out, progress=True)
+                sync(source, destination, files_from=check.dst_out, progress=True, flags=flags)
 
 
 def handle_sync(paths, force=False):
     check_paths(paths)
+    flags = rclone_flags()
     with check_files(paths) as checks:
         answers = get_answers("sync", checks, paths, force=force)
         for answer, check, (source, destination) in zip(answers, checks, paths):
             if answer:
                 if read(check.src_out):
                     print(f"Removing files from {destination}...")
-                    sync(source, destination, files_from=check.src_out, progress=False)
+                    sync(source, destination, files_from=check.src_out, progress=False, flags=flags)
                 if read(check.dst_out):
                     print(f"Copying files to {destination}...")
-                    sync(source, destination, files_from=check.dst_out, progress=True)
+                    sync(source, destination, files_from=check.dst_out, progress=True, flags=flags)

@@ -72,16 +72,17 @@ def check_paths(paths):
                     raise DataRootError(f"Remote {item} is a root path")
 
 
-def sync(source, destination, files_from=None, progress=False):
-    args = []
+def sync(source, destination, files_from=None, progress=False, flags=None):
+    if flags is None:
+        flags = []
     if files_from is not None:
-        args.append(f"--files-from {files_from}")
+        flags.append(f"--files-from {files_from}")
     if progress:
-        args.append("--progress")
+        flags.append("--progress")
 
-    command = " ".join(["rclone", "sync", source, destination, *args])
-
+    command = " ".join(["rclone", "sync", source, destination, *flags])
     process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
+
     if progress:
         pbar = tqdm(total=len(read(files_from)))
 

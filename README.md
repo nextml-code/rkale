@@ -25,6 +25,9 @@ root = "path to data folder where datasets are stored"
 
 [aliases]
 wasabi = "optional alias for remote in rclone.conf"
+
+[rclone] # global flags for rclone
+flags = ["--transfers 32", "--checkers 32"]
 ```
 
 If alases are empty the remote name from the project config is used in the rclone lookup.
