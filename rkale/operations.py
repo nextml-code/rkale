@@ -15,7 +15,7 @@ def get_input(verbose_info):
 def get_answers(operation, checks, paths, force=False):
     answers = []
     for check, (source, destination) in zip(checks, paths):
-        missing_src, missing_dst = read(check.src_out), read(check.dst_out)
+        missing_src, missing_dst, diff = read(check.src_out), read(check.dst_out), read(check.diff_out)
         if check.stderr:
             print(check.stderr)
             answers.append(False)
@@ -30,8 +30,11 @@ def get_answers(operation, checks, paths, force=False):
             if operation == "sync" and missing_src:
                 print(f"WARNING! {len(missing_src)} files will be removed")
                 verbose_info.extend(["Files to be removed:\n", *missing_src])
+            if diff:
+                print(f"WARNING! {len(diff)} files will be replaced")
+                verbose_info.extend(["Files to be replaced:\n", *diff])
 
-            if (operation == "sync" and missing_src) or missing_dst:
+            if (operation == "sync" and missing_src) or missing_dst or diff:
                 answers.append(get_input("".join(verbose_info)))
             else:
                 print(f"Source and destination match, no files to {operation}")
@@ -46,8 +49,13 @@ def handle_copy(paths, force=False):
         answers = get_answers("copy", checks, paths, force=force)
         for answer, check, (source, destination) in zip(answers, checks, paths):
             if answer:
-                print(f"Copying files to {destination}...")
-                sync(source, destination, files_from=check.dst_out, progress=True, flags=flags)
+                if read(check.dst_out):
+                    print(f"Copying files to {destination}...")
+                    sync(source, destination, files_from=check.dst_out, progress=True, flags=flags)
+                if read(check.diff_out):
+                    print(f"Updating files on {destination}...")
+                    sync(source, destination, files_from=check.diff_out, progress=True, flags=flags)
+
 
 
 def handle_sync(paths, force=False):
@@ -63,3 +71,6 @@ def handle_sync(paths, force=False):
                 if read(check.dst_out):
                     print(f"Copying files to {destination}...")
                     sync(source, destination, files_from=check.dst_out, progress=True, flags=flags)
+                if read(check.diff_out):
+                    print(f"Replacing files on {destination}...")
+                    sync(source, destination, files_from=check.diff_out, progress=True, flags=flags)
