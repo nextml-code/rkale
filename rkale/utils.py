@@ -17,15 +17,18 @@ def read(file_path):
 
 @contextmanager
 def check_files(paths):
-    Check = namedtuple("Check", ["src_out", "dst_out", "stderr"])
+    Check = namedtuple("Check", ["src_out", "dst_out", "diff_out", "stderr"])
     checks = []
     for source, destination in paths:
         print(f"Comparing paths {source} and {destination}...")
-        src_out, dst_out, error_out = (tempfile.mkstemp()[1] for _ in range(3))
+        src_out, dst_out, diff_out, error_out = (
+            tempfile.mkstemp()[1] for _ in range(4)
+        )
         result = subprocess.run(
             f"rclone check {source} {destination}"
             + f" --missing-on-src {src_out}"
-            + f" --missing-on-dst {dst_out} --error {error_out}",
+            + f" --missing-on-dst {dst_out}"
+            + f" --error {error_out} --differ {diff_out}",
             shell=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
@@ -42,11 +45,16 @@ def check_files(paths):
             )
         stderr = (
             result.stderr.decode("utf-8")
-            if (not read(src_out) and not read(dst_out) and result.returncode == 1)
+            if (
+                not read(src_out)
+                and not read(dst_out)
+                and not read(diff_out)
+                and result.returncode == 1
+            )
             else files_stderr
         )
         os.remove(error_out)
-        checks.append(Check(src_out, dst_out, stderr))
+        checks.append(Check(src_out, dst_out, diff_out, stderr))
 
     try:
         yield checks
@@ -54,6 +62,7 @@ def check_files(paths):
         for check in checks:
             os.remove(check.src_out)
             os.remove(check.dst_out)
+            os.remove(check.diff_out)
 
 
 def check_paths(paths):
