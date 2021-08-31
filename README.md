@@ -2,7 +2,7 @@
 
 ## Install
 
-Install lantern in your project using poetry:
+Install rkale in your project using poetry:
 
 ```bash
 poetry add rkale
@@ -30,7 +30,8 @@ wasabi = "optional alias for remote in rclone.conf"
 flags = ["--transfers 32", "--checkers 32"]
 ```
 
-If alases are empty the remote name from the project config is used in the rclone lookup.
+If aliases are empty the remote name from the project config is used in the
+rclone lookup.
 
 ### Project
 Configure project datasets in the pyproject.toml file:
@@ -46,7 +47,8 @@ name = "dataset_2"
 remote = "remote_2"
 ```
 
-The remote specified for the dataset must match a remote in the `rclone.conf` or an alias in the global rkale configuration.
+The remote specified for the dataset must match a remote in the `rclone.conf`
+or an alias in the global rkale configuration.
 
 ## Usage
 
