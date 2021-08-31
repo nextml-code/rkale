@@ -3,7 +3,7 @@ from functools import lru_cache
 from pathlib import Path
 
 import toml
-from rkale.exceptions import ConfigError, DataRootError, DatasetError
+from rkale.exceptions import DataRootError
 
 
 @lru_cache()
@@ -27,23 +27,22 @@ def project_configuration(working_dir=None):
     config = load_configuration(config_path)
     if "tool" in config and "rkale" in config["tool"]:
         return config["tool"]["rkale"]
-    raise ConfigError(f"No rkale section found in {config_path}")
+    else:
+        return dict()
 
 
 def rclone_flags():
     config = global_configuration()
     if "rclone" in config and "flags" in config["rclone"]:
         return config["rclone"]["flags"]
-    return []
+    return list()
 
 
 def datasets(working_dir=None):
     if working_dir is None:
         working_dir = os.getcwd()
     config = project_configuration(working_dir=working_dir)
-    if "dataset" in config:
-        return config["dataset"]
-    raise DatasetError("No dataset defined in rkale config")
+    return config.get("dataset", list())
 
 
 def dataset_paths(working_dir=None):
