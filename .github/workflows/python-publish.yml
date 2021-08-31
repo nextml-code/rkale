@@ -21,6 +21,9 @@ jobs:
         poetry install
     - name: Run tests
       run: |
+        mkdir ~/.config/rkale
+        echo "[data]" >> ~/.config/rkale/rkale.conf
+        echo 'root = "~/Documents/data"' >> ~/.config/rkale/rkale.conf
         source $HOME/.poetry/env
         poetry run pytest
     - name: Build wheels
