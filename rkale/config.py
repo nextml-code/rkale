@@ -8,15 +8,7 @@ from rkale.exceptions import ConfigError, DataRootError, DatasetError
 
 @lru_cache()
 def global_configuration():
-    rkale_config_path = Path.home() / ".config/rkale/rkale.conf"
-    if rkale_config_path.exists():
-        return load_configuration(rkale_config_path)
-    else:
-        return dict(
-            data=dict(
-                root=str(Path.home() / "rkale-data"),
-            )
-        )
+    return load_configuration(Path.home() / ".config/rkale/rkale.conf")
 
 
 @lru_cache()

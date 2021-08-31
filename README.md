@@ -57,7 +57,9 @@ or an alias in the global rkale configuration.
 ```python
 from rkale.config import dataset_paths
 
-DATASET_PATH = dataset_paths()["dataset_1"]
+
+def dataset_path():
+    return dataset_paths()["dataset_1"]
 ```
 
 ### Syncing datasets
