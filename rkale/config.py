@@ -8,7 +8,11 @@ from rkale.exceptions import ConfigError, DataRootError, DatasetError
 
 @lru_cache()
 def global_configuration():
-    return load_configuration(Path.home() / ".config/rkale/rkale.conf")
+    global_config_path = Path.home() / ".config/rkale/rkale.conf"
+    if global_config_path.exists():
+        return load_configuration(global_config_path)
+    else:
+        return dict(data=dict(root=Path.home() / "data"))
 
 
 @lru_cache()
@@ -64,7 +68,9 @@ def find(name, root):
         if (root / name).exists():
             return root / name
         root = root.parent
-    raise FileNotFoundError(f"Could not find file {name} in path {root} or any of it's parent directories")
+    raise FileNotFoundError(
+        f"Could not find file {name} in path {root} or any of it's parent directories"
+    )
 
 
 def load_configuration(path):
