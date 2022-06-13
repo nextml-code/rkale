@@ -12,7 +12,10 @@ def global_configuration():
     if global_config_path.exists():
         return load_configuration(global_config_path)
     else:
-        return dict(data=dict(root=Path.home() / "data"))
+        return dict(
+            data=dict(root=Path.home() / "data"),
+            rclone=dict(flags=["--transfers 32", "--checkers 32"]),
+        )
 
 
 @lru_cache()
