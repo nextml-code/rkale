@@ -1,4 +1,4 @@
-from rkale.utils import check_files, check_paths, read, sync
+from rkale.utils import check_files, check_paths, read, sync, copy
 from rkale.config import rclone_flags
 
 
@@ -51,10 +51,10 @@ def handle_copy(paths, force=False):
             if answer:
                 if read(check.dst_out):
                     print(f"Copying files to {destination}...")
-                    sync(source, destination, files_from=check.dst_out, progress=True, flags=flags)
+                    copy(source, destination, files_from=check.dst_out, progress=True, flags=flags)
                 if read(check.diff_out):
                     print(f"Updating files on {destination}...")
-                    sync(source, destination, files_from=check.diff_out, progress=True, flags=flags)
+                    copy(source, destination, files_from=check.diff_out, progress=True, flags=flags)
 
 
 
