@@ -82,6 +82,28 @@ def check_paths(paths):
 
 
 def sync(source, destination, files_from=None, progress=False, flags=None):
+    _run(
+        "sync",
+        source,
+        destination,
+        files_from=files_from,
+        progress=progress,
+        flags=flags,
+    )
+
+
+def copy(source, destination, files_from=None, progress=False, flags=None):
+    _run(
+        "copy",
+        source,
+        destination,
+        files_from=files_from,
+        progress=progress,
+        flags=flags,
+    )
+
+
+def _run(command, source, destination, files_from=None, progress=False, flags=None):
     if flags is None:
         flags = []
     if files_from is not None:
@@ -89,21 +111,22 @@ def sync(source, destination, files_from=None, progress=False, flags=None):
     if progress:
         flags.append("--progress")
 
-    command = " ".join(["rclone", "sync", source, destination, *flags])
+    command = " ".join(["rclone", command, source, destination, *flags])
     process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
 
     if progress:
-        pbar = tqdm(total=len(read(files_from)))
-
+        pbar = tqdm()
         while True:
             line = process.stdout.readline()
             if line:
                 line = line.decode("utf-8")
                 update = re.findall(
-                    r"^Transferred.* ([0,1-9][0-9]*) / [0,1-9][0-9]*", line
+                    r"^Transferred.* ([0,1-9][0-9]*) / ([0,1-9][0-9]*)", line
                 )
                 if update:
-                    pbar.update(int(update[0]) - pbar.n)
+                    pbar.total = int(update[1])
+                    pbar.n = int(update[0])
+                    pbar.refresh()
             else:
                 pbar.close()
                 break

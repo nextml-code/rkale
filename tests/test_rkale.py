@@ -8,10 +8,6 @@ from rkale.project_operations import get_destinations
 from rkale.utils import check_paths
 
 
-def test_version():
-    assert __version__ == "0.2.7"
-
-
 def test_path():
     assert path(Path("test"), "sub_test") == Path("test/sub_test").resolve()
     with pytest.raises(DataRootError):

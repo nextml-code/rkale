@@ -1,15 +1,15 @@
 [tool.poetry]
 name = "rkale"
-version = "0.0.0"
+version = "1.0.0"
 description = "Rclone wrapper to manage multiple datasets in a project"
-authors = ["Joar Gruneau <joar@aiwizo.com>"]
+authors = ["nextml <joar@nextml.com>"]
 
 license = "MIT"
 
 readme = 'README.md'
 
-repository = "https://github.com/Aiwizo/rkale"
-homepage = "https://github.com/Aiwizo/rkale"
+repository = "https://github.com/nextml-code/rkale"
+homepage = "https://github.com/nextml-code/rkale"
 
 [tool.poetry.dependencies]
 python = "^3.7"
