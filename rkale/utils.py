@@ -124,8 +124,8 @@ def _run(command, source, destination, files_from=None, progress=False, flags=No
                     r"^Transferred.* ([0,1-9][0-9]*) / ([0,1-9][0-9]*)", line
                 )
                 if update:
-                    pbar.total = int(update[1])
-                    pbar.n = int(update[0])
+                    pbar.total = int(update[0][1])
+                    pbar.n = int(update[0][0])
                     pbar.refresh()
             else:
                 pbar.close()
