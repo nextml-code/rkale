@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "rkale"
-version = "1.0.0"
+version = "1.0.1"
 description = "Rclone wrapper to manage multiple datasets in a project"
 authors = ["nextml <joar@nextml.com>"]
 
