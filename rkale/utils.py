@@ -5,8 +5,9 @@ import tempfile
 from collections import namedtuple
 from contextlib import contextmanager
 
-from rkale.exceptions import DataRootError
 from tqdm import tqdm
+
+from rkale.exceptions import DataRootError
 
 
 def read(file_path):
@@ -115,7 +116,7 @@ def _run(command, source, destination, files_from=None, progress=False, flags=No
     process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
 
     if progress:
-        pbar = tqdm()
+        pbar = tqdm(desc="Downloading")
         while True:
             line = process.stdout.readline()
             if line:
