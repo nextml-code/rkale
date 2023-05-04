@@ -116,7 +116,7 @@ def _run(command, source, destination, files_from=None, progress=False, flags=No
     process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
 
     if progress:
-        pbar = tqdm(desc="Downloading")
+        pbar = tqdm(desc="Transferring")
         while True:
             line = process.stdout.readline()
             if line:
