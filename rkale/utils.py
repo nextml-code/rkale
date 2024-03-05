@@ -83,7 +83,7 @@ def check_paths(paths):
 
 
 def sync(source, destination, files_from=None, progress=False, flags=None):
-    _run(
+    return _run(
         "sync",
         source,
         destination,
@@ -94,7 +94,7 @@ def sync(source, destination, files_from=None, progress=False, flags=None):
 
 
 def copy(source, destination, files_from=None, progress=False, flags=None):
-    _run(
+    return _run(
         "copy",
         source,
         destination,
@@ -131,4 +131,4 @@ def _run(command, source, destination, files_from=None, progress=False, flags=No
             else:
                 pbar.close()
                 break
-    process.wait()
+    return process.wait()
